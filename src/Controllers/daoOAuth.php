@@ -427,17 +427,20 @@ class daoOAuth {
     }
     
     /**
-     * Valida y procesa los scopes solicitados
-     * 
-     * ¿QUÉ HACE? Verifica que los permisos solicitados sean válidos
-     * ¿CÓMO? Compara contra lista de scopes permitidos
-     * ¿PARA QUÉ? Controlar qué información puede acceder cada aplicación
+     * Validar scopes desde BD en lugar de array hardcodeado
      */
     private function validarScopes($scope_string) {
-        $scopes_disponibles = [
-            'read_user' => 'Ver información básica del usuario',
-            'read_email' => 'Ver dirección de correo electrónico'
-        ];
+        // Obtener scopes disponibles desde BD en lugar de array estático
+        $query = "SELECT DISTINCT scopes FROM oauth_clients WHERE active = 1";
+        $result = $this->conexion->query($query);
+        
+        $scopes_disponibles = [];
+        while ($row = $result->fetch_assoc()) {
+            $client_scopes = json_decode($row['scopes'], true);
+            foreach ($client_scopes as $scope) {
+                $scopes_disponibles[$scope] = $this->getDescripcionScope($scope);
+            }
+        }
         
         $scopes_solicitados = explode(' ', trim($scope_string));
         $scopes_validos = [];
@@ -449,6 +452,17 @@ class daoOAuth {
         }
         
         return $scopes_validos;
+    }
+
+    private function getDescripcionScope($scope) {
+        $descripciones = [
+            'read_user' => 'Ver información básica del usuario',
+            'read_email' => 'Ver dirección de correo electrónico',
+            'read_department' => 'Ver departamento del usuario',
+            'read_planta' => 'Ver planta de trabajo'
+        ];
+        
+        return $descripciones[$scope] ?? 'Permiso de aplicación';
     }
     
     /**
@@ -762,5 +776,25 @@ switch($ruta) {
         http_response_code(404);
         echo "Endpoint OAuth no encontrado";
         break;
+}
+
+function obtenerClientesOAuth() {
+    try {
+        $conector = new LocalConector();
+        $conexion = $conector->conectar();
+        
+        $query = "SELECT id, name, redirect_uri, secret, created_at FROM oauth_clients ORDER BY created_at DESC";
+        $result = $conexion->query($query);
+        
+        $clientes = [];
+        while ($row = $result->fetch_assoc()) {
+            $clientes[] = $row;
+        }
+        
+        return $clientes;
+    } catch (Exception $e) {
+        error_log("Error obteniendo clientes OAuth: " . $e->getMessage());
+        return [];
+    }
 }
 ?>

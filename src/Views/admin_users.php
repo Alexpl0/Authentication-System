@@ -161,85 +161,296 @@
             color: var(--gray-500);
         }
 
+        /* 🆕 Estilos para el panel OAuth */
+        .tab-container {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .tab-buttons {
+            display: flex;
+            border-bottom: 2px solid var(--gray-200);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .tab-button {
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            border-bottom: 2px solid transparent;
+            transition: all var(--transition-normal);
+        }
+
+        .tab-button.active {
+            color: var(--grammer-blue);
+            border-bottom-color: var(--grammer-blue);
+        }
+
+        .tab-button:hover {
+            color: var(--grammer-blue);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .oauth-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .oauth-table th, .oauth-table td {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .oauth-table th {
+            background-color: var(--gray-50);
+            color: var(--gray-600);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .oauth-table tr:hover {
+            background-color: var(--gray-100);
+        }
+
+        .client-id-badge {
+            background: var(--grammer-light-blue);
+            color: var(--white);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        .secret-hidden {
+            font-family: monospace;
+            color: var(--gray-500);
+            font-size: 0.9rem;
+        }
+
+        .oauth-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--grammer-blue);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
     <div class="admin-container">
         <!-- Encabezado del Panel -->
         <header class="admin-header">
-            <h1><i class="fas fa-users-cog"></i> Gestión de Usuarios</h1>
+            <h1><i class="fas fa-users-cog"></i> Panel de Administración</h1>
             <a href="/admin/users/new" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Nuevo Usuario
             </a>
         </header>
 
-        <!-- Filtros y Búsqueda -->
-        <div class="section-card">
-            <div class="filters-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="Buscar por nombre o email...">
-                <select id="plantFilter" class="filter-select">
-                    <option value="">Todas las Plantas</option>
-                    <option value="Querétaro">Querétaro</option>
-                    <option value="Puebla">Puebla</option>
-                    <option value="Monterrey">Monterrey</option>
-                </select>
-                <select id="statusFilter" class="filter-select">
-                    <option value="">Todos los Estados</option>
-                    <option value="Activo">Activo</option>
-                    <option value="Inactivo">Inactivo</option>
-                </select>
+        <!-- 🆕 Tabs de Navegación -->
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="showTab('users')">
+                    <i class="fas fa-users"></i> Usuarios
+                </button>
+                <button class="tab-button" onclick="showTab('oauth')">
+                    <i class="fas fa-key"></i> Clientes OAuth
+                </button>
             </div>
-        </div>
 
-        <!-- Tabla de Usuarios -->
-        <div class="users-table-container">
-            <table class="users-table">
-                <thead>
-                    <tr>
-                        <th>Usuario</th>
-                        <th>Planta</th>
-                        <th>Estado</th>
-                        <th>Último Login</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody">
-                    <?php if (empty($usuarios)): ?>
-                        <tr>
-                            <td colspan="5" class="no-results">No se encontraron usuarios.</td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($usuarios as $usuario): ?>
+            <!-- 📊 Tab de Usuarios (contenido existente) -->
+            <div id="users-tab" class="tab-content active">
+                <!-- Filtros y Búsqueda -->
+                <div class="section-card">
+                    <div class="filters-container">
+                        <input type="text" id="searchInput" class="search-input" placeholder="Buscar por nombre o email...">
+                        <select id="plantFilter" class="filter-select">
+                            <option value="">Todas las Plantas</option>
+                            <option value="Querétaro">Querétaro</option>
+                            <option value="Puebla">Puebla</option>
+                            <option value="Monterrey">Monterrey</option>
+                        </select>
+                        <select id="statusFilter" class="filter-select">
+                            <option value="">Todos los Estados</option>
+                            <option value="Activo">Activo</option>
+                            <option value="Inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tabla de Usuarios (contenido existente) -->
+                <div class="users-table-container">
+                    <table class="users-table">
+                        <thead>
                             <tr>
-                                <td>
-                                    <div class="user-info">
-                                        <div class="user-avatar">
-                                            <?= strtoupper(substr($usuario['nombre'], 0, 1)) ?>
-                                        </div>
-                                        <div>
-                                            <div class="user-name"><?= htmlspecialchars($usuario['nombre']) ?></div>
-                                            <div class="user-email"><?= htmlspecialchars($usuario['email']) ?></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><?= htmlspecialchars($usuario['planta']) ?></td>
-                                <td>
-                                    <span class="status-badge status-<?= strtolower($usuario['estado']) ?>">
-                                        <?= htmlspecialchars($usuario['estado']) ?>
-                                    </span>
-                                </td>
-                                <td><?= date('d/m/Y H:i', strtotime($usuario['ultimo_login'])) ?></td>
-                                <td class="action-buttons">
-                                    <a href="/admin/users/edit/<?= $usuario['id'] ?>" class="btn btn-secondary btn-sm">Editar</a>
-                                    <a href="/admin/users/view/<?= $usuario['id'] ?>" class="btn btn-tertiary btn-sm">Ver</a>
-                                </td>
+                                <th>Usuario</th>
+                                <th>Planta</th>
+                                <th>Estado</th>
+                                <th>Último Login</th>
+                                <th>Acciones</th>
                             </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-             <div id="noResultsMessage" class="no-results" style="display: none;">
-                No se encontraron usuarios que coincidan con los filtros.
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <?php if (empty($usuarios)): ?>
+                                <tr>
+                                    <td colspan="5" class="no-results">No se encontraron usuarios.</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($usuarios as $usuario): ?>
+                                    <tr>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">
+                                                    <?= strtoupper(substr($usuario['nombre'], 0, 1)) ?>
+                                                </div>
+                                                <div>
+                                                    <div class="user-name"><?= htmlspecialchars($usuario['nombre']) ?></div>
+                                                    <div class="user-email"><?= htmlspecialchars($usuario['email']) ?></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><?= htmlspecialchars($usuario['planta']) ?></td>
+                                        <td>
+                                            <span class="status-badge status-<?= strtolower($usuario['estado']) ?>">
+                                                <?= htmlspecialchars($usuario['estado']) ?>
+                                            </span>
+                                        </td>
+                                        <td><?= date('d/m/Y H:i', strtotime($usuario['ultimo_login'])) ?></td>
+                                        <td class="action-buttons">
+                                            <a href="/admin/users/edit/<?= $usuario['id'] ?>" class="btn btn-secondary btn-sm">Editar</a>
+                                            <a href="/admin/users/view/<?= $usuario['id'] ?>" class="btn btn-tertiary btn-sm">Ver</a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                     <div id="noResultsMessage" class="no-results" style="display: none;">
+                        No se encontraron usuarios que coincidan con los filtros.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🔑 Nueva Tab de OAuth -->
+            <div id="oauth-tab" class="tab-content">
+                <!-- Estadísticas OAuth -->
+                <div class="oauth-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalClients">3</div>
+                        <div class="stat-label">Clientes Registrados</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="activeTokens">--</div>
+                        <div class="stat-label">Tokens Activos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="todayLogins">--</div>
+                        <div class="stat-label">Logins Hoy</div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Clientes OAuth -->
+                <div class="users-table-container">
+                    <table class="oauth-table">
+                        <thead>
+                            <tr>
+                                <th>Cliente ID</th>
+                                <th>Nombre</th>
+                                <th>Redirect URI</th>
+                                <th>Secret</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            // 🔥 Aquí obtenemos los clientes desde BD
+                            $oauth_clients = obtenerClientesOAuth(); // Función que crearemos
+                            
+                            if (empty($oauth_clients)): ?>
+                                <tr>
+                                    <td colspan="6" class="no-results">No hay clientes OAuth registrados.</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($oauth_clients as $client): ?>
+                                    <tr>
+                                        <td>
+                                            <span class="client-id-badge"><?= htmlspecialchars($client['id']) ?></span>
+                                        </td>
+                                        <td>
+                                            <strong><?= htmlspecialchars($client['name']) ?></strong>
+                                        </td>
+                                        <td>
+                                            <span title="<?= htmlspecialchars($client['redirect_uri']) ?>">
+                                                <?= substr(htmlspecialchars($client['redirect_uri']), 0, 40) ?>...
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="secret-hidden" onclick="toggleSecret(this, '<?= htmlspecialchars($client['secret']) ?>')">
+                                                ••••••••••••••••
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge status-activo">Activo</span>
+                                        </td>
+                                        <td class="action-buttons">
+                                            <button class="btn btn-secondary btn-sm" onclick="regenerateSecret('<?= $client['id'] ?>')">
+                                                <i class="fas fa-sync"></i> Regenerar Secret
+                                            </button>
+                                            <button class="btn btn-tertiary btn-sm" onclick="viewClientDetails('<?= $client['id'] ?>')">
+                                                <i class="fas fa-eye"></i> Ver
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 🆕 Formulario para Agregar Cliente -->
+                <div class="section-card" style="margin-top: var(--spacing-xl);">
+                    <h3><i class="fas fa-plus"></i> Registrar Nuevo Cliente OAuth</h3>
+                    <form id="newClientForm" style="display: grid; gap: var(--spacing-md); grid-template-columns: 1fr 1fr;">
+                        <input type="text" placeholder="Client ID (ej: app_cliente)" required>
+                        <input type="text" placeholder="Nombre de la Aplicación" required>
+                        <input type="url" placeholder="Redirect URI" required style="grid-column: 1 / -1;">
+                        <button type="submit" class="btn btn-primary" style="grid-column: 1 / -1;">
+                            <i class="fas fa-plus"></i> Crear Cliente
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -304,6 +515,49 @@
             searchInput.addEventListener('keyup', filterTable);
             plantFilter.addEventListener('change', filterTable);
             statusFilter.addEventListener('change', filterTable);
+        });
+
+        // 🆕 Funciones para OAuth Panel
+        function showTab(tabName) {
+            // Ocultar todas las tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Mostrar tab seleccionada
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function toggleSecret(element, secret) {
+            if (element.textContent === '••••••••••••••••') {
+                element.textContent = secret;
+                element.style.color = 'var(--grammer-blue)';
+            } else {
+                element.textContent = '••••••••••••••••';
+                element.style.color = 'var(--gray-500)';
+            }
+        }
+
+        function regenerateSecret(clientId) {
+            if (confirm('¿Estás seguro de regenerar el secret? Esto invalidará el secret actual.')) {
+                // Aquí harías una petición AJAX para regenerar
+                alert(`Secret regenerado para ${clientId} (pendiente implementación)`);
+            }
+        }
+
+        function viewClientDetails(clientId) {
+            // Mostrar modal con detalles del cliente
+            alert(`Mostrar detalles de ${clientId} (pendiente implementación)`);
+        }
+
+        // Event listener para nuevo cliente
+        document.getElementById('newClientForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Formulario de nuevo cliente (pendiente implementación)');
         });
     </script>
 </body>
