@@ -600,7 +600,7 @@
                 });
             }
             
-            // Animación de entrada para las cards
+            // Animación de entrada para las cards 
             const cards = document.querySelectorAll('.section-card, .app-card-dashboard');
             cards.forEach((card, index) => {
                 card.style.opacity = '0';
