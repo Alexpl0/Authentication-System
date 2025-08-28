@@ -6,7 +6,9 @@
     <title>Dashboard - Sistema de Autenticación Grammer</title>
     
     <!-- CSS Centralizado de Grammer -->
-    <link rel="stylesheet" href="../../public/css/styles.css">
+    <link rel="stylesheet" href="../../../public/css/styles.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <!-- 
     ¿QUÉ HACE ESTA VISTA?
@@ -38,6 +40,15 @@
             min-height: 100vh;
         }
         
+        .dashboard-logo {
+            position: fixed;
+            top: var(--spacing-lg);
+            left: var(--spacing-lg);
+            width: 60px;
+            height: auto;
+            z-index: 1000;
+        }
+        
         .dashboard-header {
             background: linear-gradient(135deg, var(--grammer-blue) 0%, var(--grammer-light-blue) 100%);
             color: var(--white);
@@ -45,6 +56,7 @@
             border-radius: var(--border-radius-lg);
             margin-bottom: var(--spacing-xl);
             box-shadow: var(--shadow-lg);
+            margin-top: 80px; /* Espacio para el logo */
         }
         
         .user-welcome {
@@ -346,6 +358,8 @@
     </style>
 </head>
 <body>
+    <img src="../../../public/images/imagen.png" alt="Grammer Logo" class="dashboard-logo">
+    
     <div class="dashboard-container">
         <!-- Header de Bienvenida -->
         <div class="dashboard-header">
@@ -354,7 +368,7 @@
                     <?= strtoupper(substr($usuario['nombre'] ?? 'U', 0, 1)) ?>
                 </div>
                 <div class="welcome-text">
-                    <h1>¡Bienvenido, <?= htmlspecialchars(explode(' ', $usuario['nombre'] ?? 'Usuario')[0]) ?>!</h1>
+                    <h1><i class="fas fa-hand-wave"></i> ¡Bienvenido, <?= htmlspecialchars(explode(' ', $usuario['nombre'] ?? 'Usuario')[0]) ?>!</h1>
                     <p>
                         <?= htmlspecialchars($usuario['email'] ?? '') ?> • 
                         Planta: <?= htmlspecialchars($usuario['planta'] ?? 'No definida') ?>
@@ -381,7 +395,7 @@
                     <div class="stat-label">Último Acceso</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">✅</div>
+                    <div class="stat-number"><i class="fas fa-check-circle"></i></div>
                     <div class="stat-label">Cuenta Activa</div>
                 </div>
             </div>
@@ -393,7 +407,7 @@
                 <!-- Aplicaciones Disponibles -->
                 <div class="section-card">
                     <div class="section-header">
-                        <div class="section-icon">🏢</div>
+                        <div class="section-icon"><i class="fas fa-building"></i></div>
                         <h2 class="section-title">Aplicaciones Corporativas</h2>
                     </div>
                     
@@ -401,48 +415,48 @@
                         <!-- Intranet Grammer -->
                         <a href="https://intranet.grammer.com" class="app-card-dashboard" target="_blank">
                             <div class="app-header">
-                                <div class="app-icon-small">🏠</div>
+                                <div class="app-icon-small"><i class="fas fa-home"></i></div>
                                 <h3 class="app-name">Intranet Grammer</h3>
                             </div>
                             <p class="app-description">Portal interno con noticias, documentos y recursos corporativos</p>
                             <div class="app-status status-connected">
-                                ✅ Conectada con SSO
+                                <i class="fas fa-check-circle"></i> Conectada con SSO
                             </div>
                         </a>
                         
                         <!-- Sistema de Pedidos -->
                         <a href="https://pedidos.grammer.com" class="app-card-dashboard" target="_blank">
                             <div class="app-header">
-                                <div class="app-icon-small">📦</div>
+                                <div class="app-icon-small"><i class="fas fa-box"></i></div>
                                 <h3 class="app-name">Sistema de Pedidos</h3>
                             </div>
                             <p class="app-description">Gestión de pedidos, inventario y logística</p>
                             <div class="app-status status-connected">
-                                ✅ Conectada con SSO
+                                <i class="fas fa-check-circle"></i> Conectada con SSO
                             </div>
                         </a>
                         
                         <!-- CRM Grammer -->
                         <a href="https://crm.grammer.com" class="app-card-dashboard" target="_blank">
                             <div class="app-header">
-                                <div class="app-icon-small">🤝</div>
+                                <div class="app-icon-small"><i class="fas fa-handshake"></i></div>
                                 <h3 class="app-name">CRM Grammer</h3>
                             </div>
                             <p class="app-description">Gestión de clientes y relaciones comerciales</p>
                             <div class="app-status status-available">
-                                🔗 Disponible para conectar
+                                <i class="fas fa-link"></i> Disponible para conectar
                             </div>
                         </a>
                         
                         <!-- Sistema de Recursos Humanos -->
                         <div class="app-card-dashboard" style="opacity: 0.6;">
                             <div class="app-header">
-                                <div class="app-icon-small">👥</div>
+                                <div class="app-icon-small"><i class="fas fa-users"></i></div>
                                 <h3 class="app-name">Recursos Humanos</h3>
                             </div>
                             <p class="app-description">Gestión de personal, nóminas y vacaciones</p>
                             <div class="app-status status-available">
-                                🚧 En desarrollo
+                                <i class="fas fa-tools"></i> En desarrollo
                             </div>
                         </div>
                     </div>
@@ -451,27 +465,27 @@
                 <!-- Acciones Rápidas -->
                 <div class="section-card">
                     <div class="section-header">
-                        <div class="section-icon">⚡</div>
+                        <div class="section-icon"><i class="fas fa-bolt"></i></div>
                         <h2 class="section-title">Acciones Rápidas</h2>
                     </div>
                     
                     <div class="quick-actions">
                         <a href="/user/profile" class="action-btn">
-                            <span class="action-btn-icon">👤</span>
+                            <span class="action-btn-icon"><i class="fas fa-user"></i></span>
                             Editar Perfil
                         </a>
                         <a href="/user/profile#applications" class="action-btn">
-                            <span class="action-btn-icon">🔗</span>
+                            <span class="action-btn-icon"><i class="fas fa-link"></i></span>
                             Gestionar Conexiones
                         </a>
                         <?php if (($usuario['email'] ?? '') === 'admin@grammer.com'): ?>
                             <a href="/admin/users" class="action-btn">
-                                <span class="action-btn-icon">👨‍💼</span>
+                                <span class="action-btn-icon"><i class="fas fa-user-tie"></i></span>
                                 Panel Admin
                             </a>
                         <?php endif; ?>
                         <a href="mailto:it@grammer.com" class="action-btn">
-                            <span class="action-btn-icon">🆘</span>
+                            <span class="action-btn-icon"><i class="fas fa-life-ring"></i></span>
                             Soporte IT
                         </a>
                     </div>
@@ -483,13 +497,13 @@
                 <!-- Actividad Reciente -->
                 <div class="section-card">
                     <div class="section-header">
-                        <div class="section-icon">📊</div>
+                        <div class="section-icon"><i class="fas fa-chart-line"></i></div>
                         <h3 class="section-title">Actividad Reciente</h3>
                     </div>
                     
                     <ul class="recent-activity">
                         <li class="activity-item">
-                            <div class="activity-icon">🔐</div>
+                            <div class="activity-icon"><i class="fas fa-sign-in-alt"></i></div>
                             <div class="activity-content">
                                 <p class="activity-text">Inicio de sesión exitoso</p>
                                 <p class="activity-time">Ahora mismo</p>
@@ -499,7 +513,7 @@
                         <?php if (!empty($aplicaciones)): ?>
                             <?php foreach (array_slice($aplicaciones, 0, 3) as $app): ?>
                                 <li class="activity-item">
-                                    <div class="activity-icon">🔗</div>
+                                    <div class="activity-icon"><i class="fas fa-external-link-alt"></i></div>
                                     <div class="activity-content">
                                         <p class="activity-text">Acceso a <?= htmlspecialchars($app['name']) ?></p>
                                         <p class="activity-time"><?= date('d/m/Y H:i', strtotime($app['ultimo_acceso'])) ?></p>
@@ -509,7 +523,7 @@
                         <?php endif; ?>
                         
                         <li class="activity-item">
-                            <div class="activity-icon">✅</div>
+                            <div class="activity-icon"><i class="fas fa-check-circle"></i></div>
                             <div class="activity-content">
                                 <p class="activity-text">Cuenta verificada</p>
                                 <p class="activity-time"><?= date('d/m/Y', strtotime($usuario['login_timestamp'] ?? 'now')) ?></p>
@@ -521,7 +535,7 @@
                 <!-- Información del Sistema -->
                 <div class="section-card">
                     <div class="section-header">
-                        <div class="section-icon">ℹ️</div>
+                        <div class="section-icon"><i class="fas fa-info-circle"></i></div>
                         <h3 class="section-title">Información</h3>
                     </div>
                     
@@ -558,7 +572,7 @@
                 
                 <form method="POST" action="/logout" style="margin: 0;">
                     <button type="submit" class="btn btn-secondary">
-                        🚪 Cerrar Sesión
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                     </button>
                 </form>
             </div>

@@ -6,7 +6,9 @@
     <title>Autorización de Aplicación - Sistema de Autenticación Grammer</title>
     
     <!-- CSS Centralizado de Grammer -->
-    <link rel="stylesheet" href="../../public/css/styles.css">
+    <link rel="stylesheet" href="../../../public/css/styles.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <!-- 
     ¿QUÉ HACE ESTA VISTA?
@@ -125,7 +127,11 @@
         }
         
         .permissions-title::before {
-            content: '🔐';
+            content: '';
+            margin-right: var(--spacing-sm);
+        }
+        
+        .permissions-title i {
             margin-right: var(--spacing-sm);
         }
         
@@ -262,20 +268,20 @@
                 'read_user' => [
                     'title' => 'Ver información básica del perfil',
                     'description' => 'Nombre completo, planta de trabajo y fecha de registro',
-                    'icon' => '👤'
+                    'icon' => 'fas fa-user'
                 ],
                 'read_email' => [
                     'title' => 'Ver dirección de correo electrónico',
                     'description' => 'Tu correo corporativo @grammer.com',
-                    'icon' => '📧'
+                    'icon' => 'fas fa-envelope'
                 ]
             ];
             ?>
             
             <?php foreach ($datos_consentimiento['scopes'] as $scope => $description): ?>
-                <?php $scope_info = $scope_descriptions[$scope] ?? ['title' => $description, 'description' => 'Acceso a este permiso', 'icon' => '🔑']; ?>
+                <?php $scope_info = $scope_descriptions[$scope] ?? ['title' => $description, 'description' => 'Acceso a este permiso', 'icon' => 'fas fa-key']; ?>
                 <div class="permission-item">
-                    <div class="permission-icon"><?= $scope_info['icon'] ?></div>
+                    <div class="permission-icon"><i class="<?= $scope_info['icon'] ?>"></i></div>
                     <div class="permission-details">
                         <h5><?= htmlspecialchars($scope_info['title']) ?></h5>
                         <p><?= htmlspecialchars($scope_info['description']) ?></p>
@@ -294,22 +300,23 @@
             
             <div class="consent-actions">
                 <button type="submit" name="authorize" value="no" class="btn btn-deny btn-full">
-                    ❌ Denegar Acceso
+                    <i class="fas fa-times"></i> Denegar Acceso
                 </button>
                 <button type="submit" name="authorize" value="yes" class="btn btn-primary btn-full" id="authorizeBtn">
                     <span class="loading-spinner" id="loadingSpinner"></span>
-                    <span id="btnText">✅ Autorizar Aplicación</span>
+                    <span id="btnText"><i class="fas fa-check"></i> Autorizar Aplicación</span>
                 </button>
             </div>
             
             <div class="security-note">
+                <i class="fas fa-shield-alt"></i>
                 <strong>Nota de seguridad:</strong> Solo autoriza aplicaciones en las que confíes. 
                 Puedes revocar estos permisos en cualquier momento desde tu perfil de usuario.
             </div>
         </form>
         
         <!-- Link de cancelación -->
-        <a href="/dashboard" class="cancel-link">← Cancelar y volver al dashboard</a>
+        <a href="/dashboard" class="cancel-link"><i class="fas fa-arrow-left"></i> Cancelar y volver al dashboard</a>
     </div>
     
     <script>

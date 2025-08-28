@@ -6,7 +6,9 @@
     <title>Administración de Usuarios - Sistema Grammer</title>
     
     <!-- CSS Centralizado de Grammer -->
-    <link rel="stylesheet" href="../../public/css/styles.css">
+    <link rel="stylesheet" href="../../../public/css/styles.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <!-- 
     ¿QUÉ HACE ESTA VISTA?
@@ -165,9 +167,9 @@
     <div class="admin-container">
         <!-- Encabezado del Panel -->
         <header class="admin-header">
-            <h1>Gestión de Usuarios</h1>
+            <h1><i class="fas fa-users-cog"></i> Gestión de Usuarios</h1>
             <a href="/admin/users/new" class="btn btn-primary">
-                ＋ Nuevo Usuario
+                <i class="fas fa-plus"></i> Nuevo Usuario
             </a>
         </header>
 

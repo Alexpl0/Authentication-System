@@ -6,7 +6,18 @@
     <title>Iniciar Sesión - Sistema de Autenticación Grammer</title>
     
     <!-- CSS Centralizado de Grammer -->
-    <link rel="stylesheet" href="../../public/css/styles.css">
+    <link rel="stylesheet" href="../../../public/css/styles.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        .brand-logo-image {
+            width: 120px;
+            height: auto;
+            margin-bottom: var(--spacing-md);
+            filter: brightness(0) invert(1); /* Hace el logo blanco si es oscuro */
+        }
+    </style>
     
     <!-- 
     ¿QUÉ HACE ESTA VISTA?
@@ -32,13 +43,14 @@
     <div class="auth-container">
         <!-- Panel de Branding -->
         <div class="auth-brand">
+            <img src="../../../public/images/imagen.png" alt="Grammer Logo" class="brand-logo-image">
             <div class="brand-logo">GRAMMER</div>
             <div class="brand-subtitle">Sistema de Autenticación Corporativo</div>
             <ul class="brand-features">
-                <li>Acceso único a todas las aplicaciones</li>
-                <li>Seguridad empresarial avanzada</li>
-                <li>Control de acceso centralizado</li>
-                <li>Experiencia de usuario unificada</li>
+                <li><i class="fas fa-key"></i> Acceso único a todas las aplicaciones</li>
+                <li><i class="fas fa-shield-alt"></i> Seguridad empresarial avanzada</li>
+                <li><i class="fas fa-cogs"></i> Control de acceso centralizado</li>
+                <li><i class="fas fa-user-friends"></i> Experiencia de usuario unificada</li>
             </ul>
         </div>
         
@@ -92,7 +104,7 @@
                             autocomplete="current-password"
                         >
                         <button type="button" class="password-toggle" id="togglePassword">
-                            👁️
+                            <i class="fas fa-eye"></i>
                         </button>
                     </div>
                 </div>
@@ -127,12 +139,13 @@
             
             // Toggle para mostrar/ocultar contraseña
             togglePassword.addEventListener('click', function() {
+                const icon = togglePassword.querySelector('i');
                 if (passwordInput.type === 'password') {
                     passwordInput.type = 'text';
-                    togglePassword.textContent = '🙈';
+                    icon.className = 'fas fa-eye-slash';
                 } else {
                     passwordInput.type = 'password';
-                    togglePassword.textContent = '👁️';
+                    icon.className = 'fas fa-eye';
                 }
             });
             
