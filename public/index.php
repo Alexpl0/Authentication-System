@@ -274,6 +274,17 @@ switch ($route) {
         }
         break;
     
+    // ===== NUEVOS ENDPOINTS DE API =====
+    case '/api/session-status':
+        require_once __DIR__ . '/../src/Controllers/SessionValidator.php';
+        SessionValidator::verificarEstadoSesion();
+        break;
+        
+    case '/api/admin/verify':
+        require_once __DIR__ . '/../src/Controllers/SessionValidator.php';
+        SessionValidator::verificarPermisosAdmin();
+        break;
+    
     // ===== RUTAS ESPECIALES =====
     case '/health':
         // Endpoint para verificar que el sistema esté funcionando

@@ -269,6 +269,12 @@
     </style>
 </head>
 <body>
+    <?php
+    // Verificar permisos de administrador
+    require_once __DIR__ . '/../Controllers/SessionValidator.php';
+    SessionValidator::requerirAdmin();
+    ?>
+    
     <div class="admin-container">
         <!-- Encabezado del Panel -->
         <header class="admin-header">
@@ -569,7 +575,7 @@
         });
     </script>
 
-    <?php
+<?php
 function obtenerClientesOAuth() {
     try {
         require_once __DIR__ . '/../../db/db.php';
@@ -591,32 +597,9 @@ function obtenerClientesOAuth() {
     }
 }
 
-// Si no tienes datos aún, inserta los clientes de prueba
-function insertarClientesPrueba() {
-    try {
-        require_once __DIR__ . '/../../db/db.php';
-        $conector = new LocalConector();
-        $conexion = $conector->conectar();
-        
-        $sql = "INSERT INTO oauth_clients (id, secret, name, redirect_uri) VALUES 
-                ('intranet_client', 'intranet_secret_key_grammer_2025', 'Intranet Grammer', 'https://intranet.grammer.com/oauth/callback'),
-                ('crm_client', 'crm_secret_key_grammer_2025', 'CRM Grammer', 'https://crm.grammer.com/oauth/callback'),
-                ('warehouse_client', 'warehouse_secret_key_grammer_2025', 'Sistema Almacén', 'https://warehouse.grammer.com/oauth/callback')
-                ON DUPLICATE KEY UPDATE name = VALUES(name)";
-        
-        $conexion->query($sql);
-        return true;
-    } catch (Exception $e) {
-        error_log("Error insertando clientes: " . $e->getMessage());
-        return false;
-    }
-}
-
 // Ejecutar inserción si no hay datos
 $clientes_existentes = obtenerClientesOAuth();
 if (empty($clientes_existentes)) {
     insertarClientesPrueba();
 }
 ?>
-</body>
-</html>

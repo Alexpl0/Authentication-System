@@ -15,7 +15,7 @@
             width: 120px;
             height: auto;
             margin-bottom: var(--spacing-md);
-            filter: brightness(0) invert(1); /* Hace el logo blanco si es oscuro */
+            filter: brightness(0) invert(1);
         }
     </style>
     
@@ -76,7 +76,7 @@
             <?php endif; ?>
             
             <!-- Formulario Principal -->
-            <form class="form-grammer" method="POST" action="/login" id="loginForm">
+            <form class="form-grammer" method="POST" action="https://grammermx.com/Jesus/auth/src/Controllers/daoLogin.php" id="loginForm">
                 <div class="form-group">
                     <label for="email" class="form-label">Correo Electrónico</label>
                     <input 
@@ -122,128 +122,8 @@
         </div>
     </div>
     
-    <script>
-        /**
-         * JavaScript para mejorar la experiencia de usuario
-         * Usando el sistema de diseño centralizado de Grammer
-         */
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginForm = document.getElementById('loginForm');
-            const emailInput = document.getElementById('email');
-            const passwordInput = document.getElementById('password');
-            const loginBtn = document.getElementById('loginBtn');
-            const btnText = document.getElementById('btnText');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            const togglePassword = document.getElementById('togglePassword');
-            
-            // Toggle para mostrar/ocultar contraseña
-            togglePassword.addEventListener('click', function() {
-                const icon = togglePassword.querySelector('i');
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    icon.className = 'fas fa-eye-slash';
-                } else {
-                    passwordInput.type = 'password';
-                    icon.className = 'fas fa-eye';
-                }
-            });
-            
-            // Validación de email en tiempo real
-            emailInput.addEventListener('blur', function() {
-                const email = emailInput.value.toLowerCase();
-                
-                if (email && !email.endsWith('@grammer.com')) {
-                    showFieldError(emailInput, 'Debe usar su correo corporativo @grammer.com');
-                } else {
-                    clearFieldError(emailInput);
-                }
-            });
-            
-            // Manejo del envío del formulario
-            loginForm.addEventListener('submit', function(e) {
-                // Se previene el envío tradicional para manejarlo con JS/Fetch
-                // y dar una experiencia de "Single Page Application"
-                e.preventDefault(); 
-                
-                if (!validateForm()) {
-                    return;
-                }
-                
-                setLoadingState(true);
-                
-                // Simulación de envío, en un caso real se enviaría el formulario
-                // Para este proyecto, dejamos que el form se envíe de forma nativa
-                // si la validación es correcta.
-                // submitForm(); // Descomentar si se usa Fetch
-                
-                // Si la validación JS pasa, se envía el formulario de verdad.
-                loginForm.submit();
-            });
-            
-            function validateForm() {
-                let isValid = true;
-                
-                const email = emailInput.value.trim().toLowerCase();
-                if (!email) {
-                    showFieldError(emailInput, 'El correo es requerido');
-                    isValid = false;
-                } else if (!email.endsWith('@grammer.com')) {
-                    showFieldError(emailInput, 'Solo se permiten correos @grammer.com');
-                    isValid = false;
-                } else {
-                    clearFieldError(emailInput);
-                }
-                
-                const password = passwordInput.value;
-                if (!password) {
-                    showFieldError(passwordInput, 'La contraseña es requerida');
-                    isValid = false;
-                } else {
-                    clearFieldError(passwordInput);
-                }
-                
-                return isValid;
-            }
-            
-            function showFieldError(field, message) {
-                clearFieldError(field);
-                field.style.borderColor = 'var(--danger)';
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'field-error';
-                errorDiv.style.color = 'var(--danger)';
-                errorDiv.style.fontSize = '0.85rem';
-                errorDiv.style.marginTop = '5px';
-                errorDiv.textContent = message;
-                field.parentNode.appendChild(errorDiv);
-            }
-            
-            function clearFieldError(field) {
-                field.style.borderColor = '';
-                const existingError = field.parentNode.querySelector('.field-error');
-                if (existingError) {
-                    existingError.remove();
-                }
-            }
-            
-            function setLoadingState(loading) {
-                if (loading) {
-                    loginBtn.disabled = true;
-                    loadingSpinner.style.display = 'inline-block';
-                    btnText.textContent = 'Autenticando...';
-                } else {
-                    loginBtn.disabled = false;
-                    loadingSpinner.style.display = 'none';
-                    btnText.textContent = 'Iniciar Sesión';
-                }
-            }
-            
-            [emailInput, passwordInput].forEach(input => {
-                input.addEventListener('input', function() {
-                    clearFieldError(this);
-                });
-            });
-        });
-    </script>
+    <!-- JavaScript Modularizado -->
+    <script src="../../public/js/config.js"></script>
+    <script src="../../public/js/login.js"></script>
 </body>
 </html>

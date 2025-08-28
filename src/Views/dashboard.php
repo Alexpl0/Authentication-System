@@ -358,6 +358,12 @@
     </style>
 </head>
 <body>
+    <?php
+    // Verificar sesión usando el nuevo SessionValidator
+    require_once __DIR__ . '/../Controllers/SessionValidator.php';
+    SessionValidator::requerirAutenticacion();
+    ?>
+    
     <img src="../../public/images/imagen.png" alt="Grammer Logo" class="dashboard-logo">
     
     <div class="dashboard-container">
@@ -579,102 +585,8 @@
         </div>
     </div>
     
-    <script>
-        /**
-         * JavaScript para dashboard interactivo
-         * 
-         * ¿QUÉ HACE?
-         * - Mejora la experiencia de usuario con interacciones dinámicas
-         * - Maneja confirmaciones de logout
-         * - Actualiza estadísticas en tiempo real
-         * - Efectos visuales y animaciones suaves
-         * 
-         * ¿CÓMO FUNCIONA?
-         * - Event listeners para clicks y hover
-         * - Actualizaciones periódicas de estado
-         * - Animaciones CSS activadas por JavaScript
-         * 
-         * ¿PARA QUÉ?
-         * - Dashboard más profesional e interactivo
-         * - Feedback inmediato al usuario
-         * - Experiencia moderna similar a aplicaciones web actuales
-         */
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            // Actualizar hora actual cada minuto
-            setInterval(updateCurrentTime, 60000);
-            
-            // Confirmación de logout
-            const logoutForm = document.querySelector('form[action="/logout"]');
-            if (logoutForm) {
-                logoutForm.addEventListener('submit', function(e) {
-                    if (!confirm('¿Estás seguro de cerrar sesión?')) {
-                        e.preventDefault();
-                    }
-                });
-            }
-            
-            // Animación de entrada para las cards 
-            const cards = document.querySelectorAll('.section-card, .app-card-dashboard');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                
-                setTimeout(() => {
-                    card.style.transition = 'all 0.6s ease-out';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
-            
-            // Efecto de hover mejorado para app cards
-            const appCards = document.querySelectorAll('.app-card-dashboard');
-            appCards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-4px) scale(1.02)';
-                });
-                
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(-2px) scale(1)';
-                });
-            });
-            
-            // Log de interacciones para analytics
-            document.querySelectorAll('.app-card-dashboard').forEach(card => {
-                card.addEventListener('click', function() {
-                    const appName = this.querySelector('.app-name')?.textContent;
-                    console.log('Dashboard: Acceso a aplicación', appName);
-                });
-            });
-        });
-        
-        function updateCurrentTime() {
-            // Actualizar la hora en las estadísticas si es necesario
-            const timeElement = document.querySelector('.stat-number');
-            if (timeElement && timeElement.textContent.includes(':')) {
-                timeElement.textContent = new Date().toLocaleTimeString('es-ES', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-            }
-        }
-        
-        // Detectar si el usuario está inactivo (opcional)
-        let inactivityTimer;
-        function resetInactivityTimer() {
-            clearTimeout(inactivityTimer);
-            inactivityTimer = setTimeout(() => {
-                console.log('Usuario inactivo detectado');
-                // Aquí podrías implementar auto-logout después de X tiempo
-            }, 30 * 60 * 1000); // 30 minutos
-        }
-        
-        // Eventos para detectar actividad
-        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-            document.addEventListener(event, resetInactivityTimer, true);
-        });
-        
-        resetInactivityTimer();
-    </script>
+    <!-- JavaScript Modularizado -->
+    <script src="../../public/js/config.js"></script>
+    <script src="../../public/js/dashboard.js"></script>
 </body>
 </html>

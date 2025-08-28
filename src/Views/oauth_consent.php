@@ -230,7 +230,13 @@
     </style>
 </head>
 <body class="auth-page">
-    <div class="consent-container">
+    <?php
+    // Verificar autenticación para OAuth
+    require_once __DIR__ . '/../Controllers/SessionValidator.php';
+    SessionValidator::requerirAutenticacion();
+    ?>
+    
+    <div class="consent-container" data-app-name="<?= htmlspecialchars($datos_consentimiento['cliente']['name']) ?>">
         <!-- Información de la Aplicación -->
         <div class="app-info">
             <div class="app-icon-large">
@@ -319,98 +325,8 @@
         <a href="/dashboard" class="cancel-link"><i class="fas fa-arrow-left"></i> Cancelar y volver al dashboard</a>
     </div>
     
-    <script>
-        /**
-         * JavaScript para página de consentimiento OAuth
-         * 
-         * ¿QUÉ HACE?
-         * - Maneja envío del formulario con estado de loading
-         * - Previene doble-click en botones de autorización
-         * - Valida que se haya seleccionado una opción
-         * - Mejora UX con feedback visual
-         * 
-         * ¿CÓMO FUNCIONA?
-         * - Event listeners en botones de autorizar/denegar
-         * - Estados de loading durante procesamiento
-         * - Validaciones antes de envío
-         * 
-         * ¿PARA QUÉ?
-         * - Evitar autorizaciones accidentales múltiples
-         * - Feedback claro al usuario sobre el proceso
-         * - Experiencia fluida en el flujo OAuth crítico
-         */
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            const consentForm = document.getElementById('consentForm');
-            const authorizeBtn = document.getElementById('authorizeBtn');
-            const btnText = document.getElementById('btnText');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            
-            // Manejo del envío del formulario
-            consentForm.addEventListener('submit', function(e) {
-                // Determinar cuál botón fue clickeado
-                const clickedButton = e.submitter;
-                const isAuthorizing = clickedButton.value === 'yes';
-                
-                if (isAuthorizing) {
-                    // Confirmar autorización para aplicaciones críticas
-                    const appName = '<?= addslashes($datos_consentimiento['cliente']['name']) ?>';
-                    
-                    if (!confirm(`¿Estás seguro de autorizar a ${appName} a acceder a tu información?`)) {
-                        e.preventDefault();
-                        return;
-                    }
-                    
-                    // Estado de loading solo para autorización
-                    setLoadingState(true);
-                    
-                    // Deshabilitar ambos botones para evitar doble envío
-                    disableAllButtons(true);
-                } else {
-                    // Para denegación, solo deshabilitar botones
-                    disableAllButtons(true);
-                }
-            });
-            
-            function setLoadingState(loading) {
-                if (loading) {
-                    loadingSpinner.style.display = 'inline-block';
-                    btnText.textContent = 'Autorizando...';
-                } else {
-                    loadingSpinner.style.display = 'none';
-                    btnText.textContent = '✅ Autorizar Aplicación';
-                }
-            }
-            
-            function disableAllButtons(disabled) {
-                const allButtons = consentForm.querySelectorAll('button[type="submit"]');
-                allButtons.forEach(button => {
-                    button.disabled = disabled;
-                });
-            }
-            
-            // Auto-focus en botón de autorizar para accesibilidad
-            authorizeBtn.focus();
-            
-            // Log de auditoría del lado del cliente
-            console.log('OAuth Consent: Solicitud de autorización mostrada', {
-                client: '<?= addslashes($datos_consentimiento['cliente']['name']) ?>',
-                user: '<?= addslashes($datos_consentimiento['usuario']['email']) ?>',
-                scopes: '<?= addslashes($datos_consentimiento['scope']) ?>',
-                timestamp: new Date().toISOString()
-            });
-        });
-        
-        // Prevenir que el usuario salga accidentalmente
-        window.addEventListener('beforeunload', function(e) {
-            // Solo mostrar advertencia si hay una decisión pendiente
-            e.returnValue = '¿Estás seguro de salir? La aplicación seguirá esperando tu autorización.';
-        });
-        
-        // Remover advertencia cuando se envía el formulario
-        document.getElementById('consentForm').addEventListener('submit', function() {
-            window.removeEventListener('beforeunload', arguments.callee);
-        });
-    </script>
+    <!-- JavaScript Modularizado -->
+    <script src="../../public/js/config.js"></script>
+    <script src="../../public/js/oauth-consent.js"></script>
 </body>
 </html>
