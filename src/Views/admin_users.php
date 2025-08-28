@@ -6,7 +6,7 @@
     <title>Administración de Usuarios - Sistema Grammer</title>
     
     <!-- CSS Centralizado de Grammer -->
-    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="../../public/css/styles.css">
     
     <!-- 
     ¿QUÉ HACE ESTA VISTA?
