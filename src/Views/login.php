@@ -43,7 +43,7 @@
     <div class="auth-container">
         <!-- Panel de Branding -->
         <div class="auth-brand">
-            <img src="../../../public/images/imagen.png" alt="Grammer Logo" class="brand-logo-image">
+            <img src="../../public/images/imagen.png" alt="Grammer Logo" class="brand-logo-image">
             <div class="brand-logo">GRAMMER</div>
             <div class="brand-subtitle">Sistema de Autenticación Corporativo</div>
             <ul class="brand-features">

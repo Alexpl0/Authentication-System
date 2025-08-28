@@ -358,7 +358,7 @@
     </style>
 </head>
 <body>
-    <img src="../../../public/images/imagen.png" alt="Grammer Logo" class="dashboard-logo">
+    <img src="../../public/images/imagen.png" alt="Grammer Logo" class="dashboard-logo">
     
     <div class="dashboard-container">
         <!-- Header de Bienvenida -->
