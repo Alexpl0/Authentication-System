@@ -26,6 +26,11 @@ if (!class_exists('LocalConector')) {
 // Iniciar sesiones para manejar el estado de autenticación del usuario
 session_start();
 
+// Debugging temporal - remover en producción
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+
 class daoLogin {
     
     private $conexion;
@@ -68,61 +73,79 @@ class daoLogin {
      * ¿PARA QUÉ? Para autenticar usuarios y crear sesiones seguras
      */
     public function procesarLogin() {
-        // Verificar que sea una petición POST
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->responderError('Método no permitido', 405);
-            return;
-        }
-        
-        // Obtener y sanitizar datos del formulario
-        $email = $this->sanitizarInput($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? '';
-        
-        // Validaciones básicas
-        if (empty($email) || empty($password)) {
-            $this->responderError('Email y contraseña son requeridos');
-            return;
-        }
-        
-        // Validar que el email sea del dominio @grammer.com
-        if (!$this->validarDominioGrammer($email)) {
-            $this->responderError('Solo se permiten emails corporativos @grammer.com');
-            return;
-        }
-        
-        // Buscar usuario en la base de datos
-        $usuario = $this->buscarUsuarioPorEmail($email);
-        
-        if (!$usuario) {
-            $this->responderError('Credenciales incorrectas');
-            return;
-        }
-        
-        // Verificar la contraseña usando password_verify (seguro contra timing attacks)
-        if (!password_verify($password, $usuario['password'])) {
-            $this->responderError('Credenciales incorrectas');
-            return;
-        }
-        
-        // ✅ Login exitoso - Crear sesión
-        $this->crearSesionUsuario($usuario);
-        
-        // Responder según el tipo de petición
-        if ($this->esAjax()) {
-            // Respuesta JSON para AJAX
-            header('Content-Type: application/json');
-            echo json_encode([
-                'success' => true,
-                'mensaje' => 'Login exitoso',
-                'redirect' => $_SESSION['redirect_after_login'] ?? '/dashboard'
-            ]);
-            exit;
-        } else {
-            // Redirección tradicional para navegadores sin JS
-            $redirect = $_SESSION['redirect_after_login'] ?? '/dashboard';
-            unset($_SESSION['redirect_after_login']);
-            header('Location: ' . $redirect);
-            exit;
+        try {
+            // Verificar que sea una petición POST
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                $this->responderError('Método no permitido', 405);
+                return;
+            }
+            
+            // Obtener y sanitizar datos del formulario
+            $email = $this->sanitizarInput($_POST['email'] ?? '');
+            $password = $_POST['password'] ?? '';
+            
+            // Validaciones básicas
+            if (empty($email) || empty($password)) {
+                $this->responderError('Email y contraseña son requeridos', 400);
+                return;
+            }
+            
+            // Validar que el email sea del dominio @grammer.com
+            if (!$this->validarDominioGrammer($email)) {
+                $this->responderError('Solo se permiten emails corporativos @grammer.com', 403);
+                return;
+            }
+            
+            // Buscar usuario en la base de datos
+            $usuario = $this->buscarUsuarioPorEmail($email);
+            
+            if (!$usuario) {
+                $this->responderError('Usuario no encontrado en el sistema', 404);
+                return;
+            }
+            
+            // Verificar la contraseña usando password_verify
+            if (!password_verify($password, $usuario['password'])) {
+                $this->responderError('Contraseña incorrecta', 401);
+                return;
+            }
+            
+            // ✅ Login exitoso - Crear sesión
+            $this->crearSesionUsuario($usuario);
+            
+            // Log de éxito
+            error_log("Login exitoso para usuario: " . $usuario['email']);
+            
+            // Responder según el tipo de petición
+            if ($this->esAjax()) {
+                header('Content-Type: application/json; charset=utf-8');
+                
+                $response = [
+                    'success' => true,
+                    'error' => false,
+                    'mensaje' => 'Login exitoso',
+                    'redirect' => $_SESSION['redirect_after_login'] ?? '/dashboard',
+                    'usuario' => [
+                        'email' => $usuario['email'],
+                        'nombre' => $usuario['name']
+                    ],
+                    'timestamp' => date('Y-m-d H:i:s')
+                ];
+                
+                echo json_encode($response);
+                exit;
+            } else {
+                // Redirección tradicional
+                $redirect = $_SESSION['redirect_after_login'] ?? '/dashboard';
+                unset($_SESSION['redirect_after_login']);
+                header('Location: ' . $redirect);
+                exit;
+            }
+            
+        } catch (Exception $e) {
+            // Capturar cualquier error inesperado
+            error_log("Error en procesarLogin: " . $e->getMessage());
+            $this->responderError('Error interno del servidor', 500);
         }
     }
     
@@ -217,19 +240,25 @@ class daoLogin {
      * ¿PARA QUÉ? Para obtener datos del usuario para autenticación
      */
     private function buscarUsuarioPorEmail($email) {
-        $query = "SELECT id, email, password, name FROM users WHERE email = ? LIMIT 1";
-        $stmt = $this->conexion->prepare($query);
-        
-        if (!$stmt) {
-            error_log("Error preparing statement: " . $this->conexion->error);
-            return false;
+        try {
+            $query = "SELECT id, email, password, name FROM users WHERE email = ? LIMIT 1";
+            $stmt = $this->conexion->prepare($query);
+            
+            if (!$stmt) {
+                error_log("Error preparing statement: " . $this->conexion->error);
+                throw new Exception("Error en la consulta de base de datos");
+            }
+            
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            return $result->fetch_assoc();
+            
+        } catch (Exception $e) {
+            error_log("Error en buscarUsuarioPorEmail: " . $e->getMessage());
+            throw $e;
         }
-        
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        return $result->fetch_assoc();
     }
     
     /**
@@ -286,17 +315,25 @@ class daoLogin {
     
     /**
      * Responde con un error y termina la ejecución
-     * 
-     * ¿QUÉ HACE? Envía respuesta de error al cliente
-     * ¿CÓMO? Puede ser JSON API o redirección con mensaje
-     * ¿PARA QUÉ? Para manejar errores de manera consistente
      */
     private function responderError($mensaje, $codigo = 400) {
-        // Si es una petición AJAX, responder con JSON
+        // Log del error para debugging
+        error_log("Login Error: $mensaje - IP: " . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+        
+        // SIEMPRE responder JSON para peticiones AJAX
         if ($this->esAjax()) {
             http_response_code($codigo);
-            header('Content-Type: application/json');
-            echo json_encode(['error' => true, 'mensaje' => $mensaje]);
+            header('Content-Type: application/json; charset=utf-8');
+            
+            $response = [
+                'success' => false,
+                'error' => true,
+                'mensaje' => $mensaje,
+                'codigo' => $codigo,
+                'timestamp' => date('Y-m-d H:i:s')
+            ];
+            
+            echo json_encode($response);
             exit;
         }
         
@@ -332,30 +369,39 @@ $ruta = strtok($ruta, '?'); // Limpiar query string
 $loginController = new daoLogin();
 
 // Manejar la ruta específica
-switch($ruta) {
-    case '/login':
-        if ($metodo === 'GET') {
-            $loginController->mostrarLogin();
-        } elseif ($metodo === 'POST') {
-            $loginController->procesarLogin();
-        }
-        break;
-        
-    case '/logout':
-        if ($metodo === 'POST') {
-            $loginController->procesarLogout();
-        }
-        break;
-        
-    case '/':
-    case '/dashboard':
-        $loginController->mostrarDashboard();
-        break;
-        
-    default:
-        // Ruta no encontrada
-        http_response_code(404);
-        echo "Página no encontrada";
-        break;
+if (strpos($ruta, '/src/Controllers/daoLogin.php') !== false) {
+    // Es una llamada directa al controlador
+    if ($metodo === 'POST') {
+        $loginController->procesarLogin();
+    } else {
+        $loginController->mostrarLogin();
+    }
+} else {
+    // Routing normal
+    switch($ruta) {
+        case '/login':
+            if ($metodo === 'GET') {
+                $loginController->mostrarLogin();
+            } elseif ($metodo === 'POST') {
+                $loginController->procesarLogin();
+            }
+            break;
+            
+        case '/logout':
+            if ($metodo === 'POST') {
+                $loginController->procesarLogout();
+            }
+            break;
+            
+        case '/':
+        case '/dashboard':
+            $loginController->mostrarDashboard();
+            break;
+            
+        default:
+            http_response_code(404);
+            echo json_encode(['error' => true, 'mensaje' => 'Ruta no encontrada']);
+            break;
+    }
 }
 ?>

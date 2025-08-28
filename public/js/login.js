@@ -68,30 +68,59 @@ document.addEventListener('DOMContentLoaded', function() {
                     credentials: 'same-origin'
                 });
                 
-                if (response.ok) {
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        GrammerUtils.showMessage('Login exitoso. Redirigiendo...', 'success');
-                        setTimeout(() => {
-                            window.location.href = result.redirect || GrammerUtils.buildUrl('/dashboard');
-                        }, 1000);
-                    } else {
-                        GrammerUtils.showMessage(result.mensaje || 'Error en el login', 'error');
-                        setLoadingState(false);
-                    }
+                // Verificar si la respuesta es JSON válida
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Respuesta del servidor no es JSON válido');
+                }
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    GrammerUtils.showMessage('Login exitoso. Redirigiendo...', 'success');
+                    setTimeout(() => {
+                        window.location.href = result.redirect || GrammerUtils.buildUrl('/dashboard');
+                    }, 1000);
                 } else {
-                    const errorData = await response.json();
-                    GrammerUtils.showMessage(errorData.mensaje || 'Error del servidor', 'error');
+                    // Manejar errores específicos
+                    handleLoginError(result, response.status);
                     setLoadingState(false);
                 }
                 
             } catch (error) {
                 console.error('Error en login:', error);
-                GrammerUtils.showMessage('Error de conexión', 'error');
+                GrammerUtils.showMessage('Error de conexión o respuesta inválida', 'error');
                 setLoadingState(false);
             }
         });
+    }
+    
+    function handleLoginError(result, status) {
+        let mensaje = 'Error desconocido';
+        
+        if (result && result.mensaje) {
+            mensaje = result.mensaje;
+        } else {
+            switch (status) {
+                case 400:
+                    mensaje = 'Datos de entrada inválidos';
+                    break;
+                case 401:
+                    mensaje = 'Contraseña incorrecta';
+                    break;
+                case 403:
+                    mensaje = 'Solo emails @grammer.com están permitidos';
+                    break;
+                case 404:
+                    mensaje = 'Usuario no encontrado';
+                    break;
+                case 500:
+                    mensaje = 'Error interno del servidor';
+                    break;
+            }
+        }
+        
+        GrammerUtils.showMessage(mensaje, 'error');
     }
     
     function validateForm() {
