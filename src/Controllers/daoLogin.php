@@ -107,12 +107,23 @@ class daoLogin {
         // ✅ Login exitoso - Crear sesión
         $this->crearSesionUsuario($usuario);
         
-        // Redirigir al dashboard o a la URL solicitada originalmente
-        $redirect = $_SESSION['redirect_after_login'] ?? '/dashboard';
-        unset($_SESSION['redirect_after_login']);
-        
-        header('Location: ' . $redirect);
-        exit;
+        // Responder según el tipo de petición
+        if ($this->esAjax()) {
+            // Respuesta JSON para AJAX
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true,
+                'mensaje' => 'Login exitoso',
+                'redirect' => $_SESSION['redirect_after_login'] ?? '/dashboard'
+            ]);
+            exit;
+        } else {
+            // Redirección tradicional para navegadores sin JS
+            $redirect = $_SESSION['redirect_after_login'] ?? '/dashboard';
+            unset($_SESSION['redirect_after_login']);
+            header('Location: ' . $redirect);
+            exit;
+        }
     }
     
     /**

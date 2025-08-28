@@ -59,38 +59,37 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const formData = new FormData(loginForm);
                 
-                const response = await GrammerUtils.fetch(CONFIG.ENDPOINTS.LOGIN, {
+                const response = await fetch(GrammerUtils.buildUrl(CONFIG.ENDPOINTS.LOGIN), {
                     method: 'POST',
                     body: formData,
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    },
+                    credentials: 'same-origin'
                 });
                 
-                if (response && response.ok) {
+                if (response.ok) {
                     const result = await response.json();
                     
                     if (result.success) {
                         GrammerUtils.showMessage('Login exitoso. Redirigiendo...', 'success');
                         setTimeout(() => {
-                            window.location.href = result.redirect || GrammerUtils.buildUrl(CONFIG.ENDPOINTS.DASHBOARD);
+                            window.location.href = result.redirect || GrammerUtils.buildUrl('/dashboard');
                         }, 1000);
                     } else {
                         GrammerUtils.showMessage(result.mensaje || 'Error en el login', 'error');
                         setLoadingState(false);
                     }
                 } else {
-                    // Si no es JSON, procesar como redirección normal
-                    loginForm.submit();
+                    const errorData = await response.json();
+                    GrammerUtils.showMessage(errorData.mensaje || 'Error del servidor', 'error');
+                    setLoadingState(false);
                 }
                 
             } catch (error) {
                 console.error('Error en login:', error);
-                GrammerUtils.showMessage('Error de conexión. Intentando login tradicional...', 'error');
-                // Fallback a envío tradicional
-                setTimeout(() => {
-                    loginForm.submit();
-                }, 1000);
+                GrammerUtils.showMessage('Error de conexión', 'error');
+                setLoadingState(false);
             }
         });
     }

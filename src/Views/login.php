@@ -76,7 +76,7 @@
             <?php endif; ?>
             
             <!-- Formulario Principal -->
-            <form class="form-grammer" method="POST" action="https://grammermx.com/Jesus/auth/src/Controllers/daoLogin.php" id="loginForm">
+            <form class="form-grammer" method="POST" id="loginForm">
                 <div class="form-group">
                     <label for="email" class="form-label">Correo Electrónico</label>
                     <input 
