@@ -281,10 +281,10 @@
         <!-- 🆕 Tabs de Navegación -->
         <div class="tab-container">
             <div class="tab-buttons">
-                <button class="tab-button active" onclick="showTab('users')">
+                <button class="tab-button active" data-tab="users">
                     <i class="fas fa-users"></i> Usuarios
                 </button>
-                <button class="tab-button" onclick="showTab('oauth')">
+                <button class="tab-button" data-tab="oauth">
                     <i class="fas fa-key"></i> Clientes OAuth
                 </button>
             </div>
@@ -515,23 +515,31 @@
             searchInput.addEventListener('keyup', filterTable);
             plantFilter.addEventListener('change', filterTable);
             statusFilter.addEventListener('change', filterTable);
+
+            // 🆕 Tab functionality
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    showTab(tabName, this);
+                });
+            });
+
+            function showTab(tabName, clickedButton) {
+                // Ocultar todas las tabs
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+
+                // Mostrar tab seleccionada
+                document.getElementById(tabName + '-tab').classList.add('active');
+                clickedButton.classList.add('active');
+            }
         });
 
         // 🆕 Funciones para OAuth Panel
-        function showTab(tabName) {
-            // Ocultar todas las tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            // Mostrar tab seleccionada
-            document.getElementById(tabName + '-tab').classList.add('active');
-            event.target.classList.add('active');
-        }
-
         function toggleSecret(element, secret) {
             if (element.textContent === '••••••••••••••••') {
                 element.textContent = secret;
@@ -560,5 +568,55 @@
             alert('Formulario de nuevo cliente (pendiente implementación)');
         });
     </script>
+
+    <?php
+function obtenerClientesOAuth() {
+    try {
+        require_once __DIR__ . '/../../db/db.php';
+        $conector = new LocalConector();
+        $conexion = $conector->conectar();
+        
+        $query = "SELECT id, name, redirect_uri, secret, created_at FROM oauth_clients ORDER BY created_at DESC";
+        $result = $conexion->query($query);
+        
+        $clientes = [];
+        while ($row = $result->fetch_assoc()) {
+            $clientes[] = $row;
+        }
+        
+        return $clientes;
+    } catch (Exception $e) {
+        error_log("Error obteniendo clientes OAuth: " . $e->getMessage());
+        return [];
+    }
+}
+
+// Si no tienes datos aún, inserta los clientes de prueba
+function insertarClientesPrueba() {
+    try {
+        require_once __DIR__ . '/../../db/db.php';
+        $conector = new LocalConector();
+        $conexion = $conector->conectar();
+        
+        $sql = "INSERT INTO oauth_clients (id, secret, name, redirect_uri) VALUES 
+                ('intranet_client', 'intranet_secret_key_grammer_2025', 'Intranet Grammer', 'https://intranet.grammer.com/oauth/callback'),
+                ('crm_client', 'crm_secret_key_grammer_2025', 'CRM Grammer', 'https://crm.grammer.com/oauth/callback'),
+                ('warehouse_client', 'warehouse_secret_key_grammer_2025', 'Sistema Almacén', 'https://warehouse.grammer.com/oauth/callback')
+                ON DUPLICATE KEY UPDATE name = VALUES(name)";
+        
+        $conexion->query($sql);
+        return true;
+    } catch (Exception $e) {
+        error_log("Error insertando clientes: " . $e->getMessage());
+        return false;
+    }
+}
+
+// Ejecutar inserción si no hay datos
+$clientes_existentes = obtenerClientesOAuth();
+if (empty($clientes_existentes)) {
+    insertarClientesPrueba();
+}
+?>
 </body>
 </html>
