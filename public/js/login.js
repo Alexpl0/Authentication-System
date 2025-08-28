@@ -58,19 +58,28 @@ document.addEventListener('DOMContentLoaded', function() {
             
             try {
                 const formData = new FormData(loginForm);
+                // Agregar flag para forzar respuesta JSON
+                formData.append('ajax', '1');
                 
                 const response = await fetch(GrammerUtils.buildUrl(CONFIG.ENDPOINTS.LOGIN), {
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
                     },
                     credentials: 'same-origin'
                 });
                 
-                // Verificar si la respuesta es JSON válida
+                // Debug: Ver qué tipo de respuesta recibimos
                 const contentType = response.headers.get('content-type');
+                console.log('Content-Type recibido:', contentType);
+                console.log('Status:', response.status);
+                
                 if (!contentType || !contentType.includes('application/json')) {
+                    // Si no es JSON, leer como texto para ver qué recibimos
+                    const responseText = await response.text();
+                    console.log('Respuesta no-JSON:', responseText.substring(0, 200));
                     throw new Error('Respuesta del servidor no es JSON válido');
                 }
                 
@@ -82,7 +91,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         window.location.href = result.redirect || GrammerUtils.buildUrl('/dashboard');
                     }, 1000);
                 } else {
-                    // Manejar errores específicos
                     handleLoginError(result, response.status);
                     setLoadingState(false);
                 }

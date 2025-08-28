@@ -73,10 +73,14 @@ class daoLogin {
      * ¿PARA QUÉ? Para autenticar usuarios y crear sesiones seguras
      */
     public function procesarLogin() {
+        // FORZAR RESPUESTA JSON si viene del fetch
+        $forceJson = $this->esAjax() || 
+                     (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
+        
         try {
             // Verificar que sea una petición POST
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                $this->responderError('Método no permitido', 405);
+                $this->responderError('Método no permitido', 405, $forceJson);
                 return;
             }
             
@@ -86,13 +90,13 @@ class daoLogin {
             
             // Validaciones básicas
             if (empty($email) || empty($password)) {
-                $this->responderError('Email y contraseña son requeridos', 400);
+                $this->responderError('Email y contraseña son requeridos', 400, $forceJson);
                 return;
             }
             
             // Validar que el email sea del dominio @grammer.com
             if (!$this->validarDominioGrammer($email)) {
-                $this->responderError('Solo se permiten emails corporativos @grammer.com', 403);
+                $this->responderError('Solo se permiten emails corporativos @grammer.com', 403, $forceJson);
                 return;
             }
             
@@ -100,25 +104,23 @@ class daoLogin {
             $usuario = $this->buscarUsuarioPorEmail($email);
             
             if (!$usuario) {
-                $this->responderError('Usuario no encontrado en el sistema', 404);
+                $this->responderError('Usuario no encontrado en el sistema', 404, $forceJson);
                 return;
             }
             
             // Verificar la contraseña usando password_verify
             if (!password_verify($password, $usuario['password'])) {
-                $this->responderError('Contraseña incorrecta', 401);
+                $this->responderError('Contraseña incorrecta', 401, $forceJson);
                 return;
             }
             
             // ✅ Login exitoso - Crear sesión
             $this->crearSesionUsuario($usuario);
             
-            // Log de éxito
-            error_log("Login exitoso para usuario: " . $usuario['email']);
-            
             // Responder según el tipo de petición
-            if ($this->esAjax()) {
+            if ($forceJson) {
                 header('Content-Type: application/json; charset=utf-8');
+                http_response_code(200);
                 
                 $response = [
                     'success' => true,
@@ -128,8 +130,7 @@ class daoLogin {
                     'usuario' => [
                         'email' => $usuario['email'],
                         'nombre' => $usuario['name']
-                    ],
-                    'timestamp' => date('Y-m-d H:i:s')
+                    ]
                 ];
                 
                 echo json_encode($response);
@@ -143,9 +144,7 @@ class daoLogin {
             }
             
         } catch (Exception $e) {
-            // Capturar cualquier error inesperado
-            error_log("Error en procesarLogin: " . $e->getMessage());
-            $this->responderError('Error interno del servidor', 500);
+            $this->responderError('Error interno del servidor', 500, $forceJson);
         }
     }
     
@@ -314,14 +313,29 @@ class daoLogin {
     }
     
     /**
+     * Verifica si la petición es AJAX
+     */
+    private function esAjax() {
+        // Múltiples formas de detectar AJAX
+        return (
+            (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+             strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') ||
+            (!empty($_SERVER['CONTENT_TYPE']) && 
+             strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) ||
+            (!empty($_POST['ajax']) && $_POST['ajax'] == '1') ||
+            (isset($_GET['format']) && $_GET['format'] === 'json')
+        );
+    }
+    
+    /**
      * Responde con un error y termina la ejecución
      */
-    private function responderError($mensaje, $codigo = 400) {
-        // Log del error para debugging
-        error_log("Login Error: $mensaje - IP: " . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+    private function responderError($mensaje, $codigo = 400, $forceJson = null) {
+        if ($forceJson === null) {
+            $forceJson = $this->esAjax();
+        }
         
-        // SIEMPRE responder JSON para peticiones AJAX
-        if ($this->esAjax()) {
+        if ($forceJson) {
             http_response_code($codigo);
             header('Content-Type: application/json; charset=utf-8');
             
@@ -329,8 +343,7 @@ class daoLogin {
                 'success' => false,
                 'error' => true,
                 'mensaje' => $mensaje,
-                'codigo' => $codigo,
-                'timestamp' => date('Y-m-d H:i:s')
+                'codigo' => $codigo
             ];
             
             echo json_encode($response);
@@ -341,18 +354,6 @@ class daoLogin {
         $_SESSION['error_login'] = $mensaje;
         header('Location: /login');
         exit;
-    }
-    
-    /**
-     * Verifica si la petición es AJAX
-     * 
-     * ¿QUÉ HACE? Detecta si es una petición asíncrona
-     * ¿CÓMO? Revisa headers HTTP
-     * ¿PARA QUÉ? Para responder apropiadamente (JSON vs HTML)
-     */
-    private function esAjax() {
-        return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-               strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
     }
 }
 
